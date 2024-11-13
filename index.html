@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400;1,700&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <title>Document</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+        font-family: "PT Serif", serif;
+    }
+    body {
+        max-width: 1440px;
+        height: 750px;
+        background-color:#004980;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .dificulty_choice{
+        width: 480px;
+        height: 460px;
+        border-radius: 12px;
+        background-color: #C2F5FF;
+       
+    }
+    .dificulty_choice-header{
+        text-align: center;
+        padding-left: 136px;
+        font-weight: 400;
+        color: #004980;
+        padding-top: 52px;
+        width: 210px;
+        font-size: 40px;
+        line-height: 48px;
+    }
+    .dificulty_choice-content{
+        margin-top: 48px;
+        display: flex;
+        gap: 24px;
+        justify-content: center;
+    }
+    .dificulty_choice-content-level{
+        height: 98px;
+        width: 98px;
+        padding-top: 17px ;
+        text-align: center;
+        border-radius: 12px;
+        color: #0080C1;
+        background-color: white;
+        font-size: 64px;
+
+    }
+    .dificulty_choice-save-button{
+        margin-left: calc(50% - 117px);
+        margin-right: calc(50% - 117px);
+        width: 246px;
+        height: 50px;
+        border-radius: 12px;
+        margin-top: 64px;
+        background:  #5ceb38;
+        text-align: center;
+        font-size: 24px;
+        line-height: 32px;
+        color: white;
+        border: 1px solid #5ceb38 ;
+
+    }
+    .level-content_start{
+        max-width: 1440px;
+        height: 750px;
+        margin-left: 26px;
+        margin-right: 26px;
+    }
+    .level-content_start-time{
+        margin-top: 22px;
+        display: flex;
+        justify-content: space-between;
+    }
+    .level-content-time{
+        display: flex;
+        flex-direction: column;
+        /* gap: 19px; */
+    }
+    .level-content_start-time-ed{
+        display: flex;
+        gap: 57px;
+        margin-left: 39px;
+    }
+
+    .level-content_start-time-min{
+        font-size: 16px;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 1);
+
+    }
+    .level-content_start-time-sek{
+        font-size: 16px;
+        font-weight: 400;
+        color: rgba(255, 255, 255, 1);
+    }
+    .level-content_start-time-num{
+        font-size: 64px;
+        color: rgba(255, 255, 255, 1);
+        font-weight: 400;
+    }
+    .level-content_start-time_button{
+        width: 246px;
+        height: 48px;
+        border-radius: 12px;
+        background:  #5ceb38;
+        text-align: center;
+        font-size: 24px;
+        line-height: 32px;
+        color: white;
+        border: 1px solid #5ceb38 ;
+        margin-top: 30px;
+    }
+    .level-content_start-card_content{
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .hidden {
+        display: none;
+    }
+
+</style>
+<body>
+    <div class="dificulty_choice">
+        <h1 class="dificulty_choice-header">Выберите сложность</h1>
+        <div class="dificulty_choice-content">
+            <div class="dificulty_choice-content-level" data-click ='0'>
+                1
+            </div>
+            <div class="dificulty_choice-content-level" data-click = '0'>
+                2
+            </div>
+            <div class="dificulty_choice-content-level" data-click = '0'>
+                3
+            </div>
+        </div>
+        <button class="dificulty_choice-save-button" >Старт</button>
+    </div>
+    <div class="play-content hidden">
+
+    </div>
+    <script src="./playCard.js"></script>
+<script src="./src/lib/template-engine.js"></script>
+    <script>
+        const bodyChoice = document.querySelector('.dificulty_choice')
+        const contentLevel = document.querySelector('.dificulty_choice-content')
+        const levels = contentLevel.querySelectorAll('.dificulty_choice-content-level')
+        const buttonStart = document.querySelector('.dificulty_choice-save-button')
+        const playContent = document.querySelector('.play-content')
+        let card
+        let colorFocus 
+        buttonStart.setAttribute('disabled','disabled') 
+            levels.forEach(level => {
+                level.addEventListener('click',(event) => {
+                colorFocus = '1px solid black'
+                level.style.border = colorFocus
+                
+                let clickNumber = Number(event.target.dataset.click)
+                clickNumber = clickNumber + 1
+                event.target.dataset.click = clickNumber
+                localStorage.setItem('level', level.textContent)
+                if(clickNumber % 2 === 0) {
+                    colorFocus = '1px solid white' 
+                    level.style.border = colorFocus
+                    localStorage.removeItem('level', level.textContent)
+            }
+                if(colorFocus !== '1px solid black' ) {
+                    buttonStart.setAttribute('disabled','disabled') 
+                
+            }   else {
+                    buttonStart.removeAttribute('disabled') 
+            }
+            
+        })
+       })
+        
+       buttonStart.addEventListener('click', () => {
+        
+        let chooseLevel = Number(localStorage.getItem('level')) 
+           console.log( typeof chooseLevel);
+           bodyChoice.classList.add('hidden')
+            playContent.classList.remove('hidden')
+            if (chooseLevel === 1) {
+                cardTemplate(6)
+            }
+            else if (chooseLevel === 2) {
+                cardTemplate(12)
+            }
+            else if(chooseLevel === 3) {
+                cardTemplate(18)
+            }
+             card = document.querySelectorAll('.card')
+           
+            
+           
+       })
+       
+      playContent.addEventListener('click', (event) => {
+        let chooseLevel = Number(localStorage.getItem('level')) 
+        console.log(chooseLevel);
+        if(event.target.className === 'level-content_start-time_button') {
+            const cards = playContent.children[0].querySelector('.level-content_start-card_content').childNodes
+            cards.forEach(element => {
+              element.classList.add('hidden')  
+            });
+
+            if (chooseLevel === 1) {
+                cardPlayTemplate(3)
+            }
+            else if (chooseLevel === 2) {
+                cardPlayTemplate(6)
+            }
+            else if(chooseLevel === 3) {
+                cardPlayTemplate(9)
+            }
+
+            setTimeout( () => {
+                const cardsPlay = playContent.children[0]
+                cardsPlay.classList.add('hidden')
+                if (chooseLevel === 1) {
+                cardTemplate(6)
+            }
+            else if (chooseLevel === 2) {
+                cardTemplate(12)
+            }
+            else if(chooseLevel === 3) {
+                cardTemplate(18)
+            }
+        }, 5000 ) 
+        }
+      })
+       
+       
+       
+        generatePlayCard(6)
+        function cardTemplate(n) {
+            playContent.appendChild(templateEngine(playLevel(n)))
+        }
+       
+        const playLevel = (n) => ({
+                    tag: 'div',
+                    cls: 'level-content_start',
+                    content: [
+                        {
+                            tag:'div',
+                            cls:'level-content_start-time',
+                            content: [
+                                {
+                                    tag: 'div',
+                                    cls: 'level-content-time',
+                                    content: [
+                                        {
+                                            tag:'div',
+                                            cls: 'level-content_start-time-ed',
+                                            content: [
+                                             {
+                                                  tag: 'p',
+                                                  cls: 'level-content_start-time-min',
+                                                  content:'min'
+                                             },
+                                                    {
+                                                  tag: 'p',
+                                                  cls: 'level-content_start-time-sek',
+                                                  content:'sek'
+                                             }
+                                    ]
+                                        },
+                                        {
+                                            tag:'div',
+                                            cls:'level-content_start-time-num',
+                                            content: '00.00'
+                                        }
+                                    ]
+                                },
+                                {
+                                    tag:'btn',
+                                    cls:'level-content_start-time_button',
+                                    content: 'Начать заново'
+                                }
+                            ]
+                        },
+                        {
+                            tag:'div',
+                            cls:'level-content_start-card_content',
+                            content: generateCard(n)
+                        }
+                    ]
+                }
+        )
+       
+        function cardPlayTemplate(n) {
+          
+            playContent.children[0].querySelector('.level-content_start-card_content').appendChild(templateEngine(generatePlayCard(n)))
+    
+        }
+   </script>
+</body>
+</html>
