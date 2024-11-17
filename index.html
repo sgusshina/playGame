@@ -191,29 +191,7 @@
            console.log( typeof chooseLevel);
            bodyChoice.classList.add('hidden')
             playContent.classList.remove('hidden')
-            if (chooseLevel === 1) {
-                cardTemplate(6)
-            }
-            else if (chooseLevel === 2) {
-                cardTemplate(12)
-            }
-            else if(chooseLevel === 3) {
-                cardTemplate(18)
-            }
-             card = document.querySelectorAll('.card')
-           
             
-           
-       })
-       
-      playContent.addEventListener('click', (event) => {
-        let chooseLevel = Number(localStorage.getItem('level')) 
-        console.log(chooseLevel);
-        if(event.target.className === 'level-content_start-time_button') {
-            const cards = playContent.children[0].querySelector('.level-content_start-card_content').childNodes
-            cards.forEach(element => {
-              element.classList.add('hidden')  
-            });
 
             if (chooseLevel === 1) {
                 cardPlayTemplate(3)
@@ -224,10 +202,12 @@
             else if(chooseLevel === 3) {
                 cardPlayTemplate(9)
             }
-
+            const cards = playContent.children[0].querySelector('.level-content_start-card_content').childNodes
             setTimeout( () => {
-                const cardsPlay = playContent.children[0]
-                cardsPlay.classList.add('hidden')
+             
+             cards.forEach(element => {
+              element.classList.add('hidden')  
+             });
                 if (chooseLevel === 1) {
                 cardTemplate(6)
             }
@@ -238,17 +218,140 @@
                 cardTemplate(18)
             }
         }, 5000 ) 
-        }
-      })
+           
+            
+           
+       })
+       let firstClickElement = null; // Для хранения элемента первого клика
+let secondClickElement = null; // Для хранения элемента второго клика
+
+playContent.addEventListener('click', (event) => {
+    let chooseLevel = Number(localStorage.getItem('level')) 
+    if(chooseLevel === 1) {
+        playGame(6)
+    }
+    if(chooseLevel === 2) {
+        playGame(12)
+    }
+    if(chooseLevel === 3) {
+        playGame(18)
+    }
+});
+function playGame (n) {
+    // Получаем все карточки
+    const cards = Array.from(playContent.children[0].querySelector('.level-content_start-card_content').children);
+
+    // Проверяем, что клик был сделан по карточке (чтобы избежать вложенных элементов)
+    if (!cards.includes(event.target)) return;
+
+    // Если карточка уже скрыта, игнорируем клик
+    if (event.target.classList.contains('hidden')) return;
+
+    const index = cards.indexOf(event.target); // Индекс текущей карточки
+    const indexHidden = index - n; // Индекс скрытой карточки
+
+    // Меняем src для текущей карточки
+    cards[index].attributes.src.value = cards[indexHidden].attributes.src.value;
+    console.log('Клик по карточке:', event.target);
+
+    if (firstClickElement === null) {
+        // Это первый клик, сохраняем элемент
+        firstClickElement = event.target;
+        console.log('Первый клик на:', firstClickElement);
+    } else if (secondClickElement === null) {
+        // Это второй клик, сохраняем элемент
+        secondClickElement = event.target;
+        console.log('Следующий клик на:', secondClickElement);
+
+        // Проверяем, совпадает ли атрибут src у двух карточек
+        if (firstClickElement.attributes.src.value === secondClickElement.attributes.src.value) {
+    // Если src совпадают, карточки должны быть видны на несколько секунд
+    setTimeout(() => {
+        firstClickElement.classList.add('hidden');
+        secondClickElement.classList.add('hidden');
+        console.log('Карточки скрыты');
+
+        // Сбрасываем переменные после того, как карточки скрылись
+        firstClickElement = null;
+        secondClickElement = null;
+
+        // Проверяем, все ли карточки скрыты
+        checkWin(cards);
+    }, 1000); // Задержка 1 секунда, перед тем как скрыть карточки
+} else {
+    // Если src не совпадают, показываем сообщение и возвращаем карточки в исходное состояние
+    setTimeout(() => {
+       
+        // Возвращаем карточки в исходное состояние
+        firstClickElement.attributes.src.value = './assets/рубашка.png'; // Или исходный путь
+        secondClickElement.attributes.src.value = './assets/рубашка.png'; // Или исходный путь
+        // Сбрасываем переменные
+        firstClickElement = null;
+        secondClickElement = null;
+    }, 1000); // Даем время на отображение второго клика перед сбросом
+}
+
+    }
+}
+// Функция для проверки, все ли карточки скрыты
+function checkWin(cards) {
+    const hiddenCards = cards.filter(card => card.classList.contains('hidden'));
+    if (hiddenCards.length === cards.length) {
+        // Если все карточки скрыты, показываем alert о победе
+        alert('Вы выиграли!');
+    }
+}
+
+
+
+
+
+
+
+       
+    //   playContent.addEventListener('click', (event) => {
+    //     let chooseLevel = Number(localStorage.getItem('level')) 
+    //     console.log(chooseLevel);
+    //     if(event.target.className === 'level-content_start-time_button') {
+    //         const cards = playContent.children[0].querySelector('.level-content_start-card_content').childNodes
+    //         cards.forEach(element => {
+    //           element.classList.add('hidden')  
+    //         });
+
+    //         if (chooseLevel === 1) {
+    //             cardPlayTemplate(3)
+    //         }
+    //         else if (chooseLevel === 2) {
+    //             cardPlayTemplate(6)
+    //         }
+    //         else if(chooseLevel === 3) {
+    //             cardPlayTemplate(9)
+    //         }
+
+    //         setTimeout( () => {
+    //             // const cardsPlay = playContent.children[0]
+    //             // cardsPlay.classList.add('hidden')
+    //             if (chooseLevel === 1) {
+    //             cardTemplate(6)
+    //         }
+    //         else if (chooseLevel === 2) {
+    //             cardTemplate(12)
+    //         }
+    //         else if(chooseLevel === 3) {
+    //             cardTemplate(18)
+    //         }
+    //     }, 5000 ) 
+    //     }
+    //   })
        
        
        
         generatePlayCard(6)
-        function cardTemplate(n) {
-            playContent.appendChild(templateEngine(playLevel(n)))
+        function cardPlayTemplate(n) {
+            playContent.appendChild(templateEngine(playLevelCard(n)))
         }
        
-        const playLevel = (n) => ({
+        const playLevelCard = (n) => ({
                     tag: 'div',
                     cls: 'level-content_start',
                     content: [
@@ -293,17 +396,23 @@
                         {
                             tag:'div',
                             cls:'level-content_start-card_content',
-                            content: generateCard(n)
+                            content: generatePlayCard(n)
                         }
                     ]
                 }
         )
        
-        function cardPlayTemplate(n) {
+        function cardTemplate(n) {
           
-            playContent.children[0].querySelector('.level-content_start-card_content').appendChild(templateEngine(generatePlayCard(n)))
+            playContent.children[0].querySelector('.level-content_start-card_content').appendChild(templateEngine(generateCard(n)))
     
         }
+
+
+       // Для хранения элемента первого клика
+
+
+
    </script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+
+
 function generateCard(n) {
     const arrCard = []
     do {
