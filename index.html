@@ -126,6 +126,47 @@
         flex-wrap: wrap;
         justify-content: center;
     }
+    .play-content_result-content{
+        width: 480px;
+        height: 460px;
+        background-color: rgba(194, 245, 255, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        border-radius: 12px;
+    }
+    .result-content-header{
+        font-weight: 400;
+        font-size: 40px;
+        line-height: 48px;
+        color: rgba(0, 73, 128, 1);
+    }
+    .result-content-title_time{
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 32px;
+        color: black
+    }
+    .result-content-time{
+        font-weight: 600;
+        font-size: 64px;
+        line-height: 72px;
+        color:black
+    }
+    .level-content_start-button{
+        width: 246px;
+        height: 48px;
+        border-radius: 12px;
+        background:  #5ceb38;
+        text-align: center;
+        font-size: 24px;
+        line-height: 32px;
+        color: white;
+        border: 1px solid #5ceb38 ;
+        margin-top: 30px;
+    }
     .hidden {
         display: none;
     }
@@ -158,18 +199,25 @@
         const levels = contentLevel.querySelectorAll('.dificulty_choice-content-level')
         const buttonStart = document.querySelector('.dificulty_choice-save-button')
         const playContent = document.querySelector('.play-content')
+        const winner = 'Вы выиграли'
+        const loss = 'Вы проиграли'
         let card
         let colorFocus 
+        
         buttonStart.setAttribute('disabled','disabled') 
-            levels.forEach(level => {
+            const selectLevel = (event) => {
+                bodyChoice.classList.remove('hidden')
+                levels.forEach(level => {
                 level.addEventListener('click',(event) => {
                 colorFocus = '1px solid black'
                 level.style.border = colorFocus
                 
                 let clickNumber = Number(event.target.dataset.click)
                 clickNumber = clickNumber + 1
+                console.log(clickNumber);
                 event.target.dataset.click = clickNumber
                 localStorage.setItem('level', level.textContent)
+                
                 if(clickNumber % 2 === 0) {
                     colorFocus = '1px solid white' 
                     level.style.border = colorFocus
@@ -182,10 +230,13 @@
                     buttonStart.removeAttribute('disabled') 
             }
             
+            
         })
        })
-        
-       buttonStart.addEventListener('click', () => {
+       
+            }
+            selectLevel(event)
+       buttonStart.addEventListener('click', (event) => {
         
         let chooseLevel = Number(localStorage.getItem('level')) 
            console.log( typeof chooseLevel);
@@ -209,35 +260,40 @@
               element.classList.add('hidden')  
              });
                 if (chooseLevel === 1) {
-                cardTemplate(6)
+                cardTemplate(6,0)
+                
             }
             else if (chooseLevel === 2) {
-                cardTemplate(12)
+                cardTemplate(12,0)
             }
             else if(chooseLevel === 3) {
-                cardTemplate(18)
+                cardTemplate(18,0)
             }
         }, 5000 ) 
-           
+        playCardGame()
             
            
        })
+    const playCardGame = (event) => {
+       
+    
+      
        let firstClickElement = null; // Для хранения элемента первого клика
 let secondClickElement = null; // Для хранения элемента второго клика
 
 playContent.addEventListener('click', (event) => {
     let chooseLevel = Number(localStorage.getItem('level')) 
     if(chooseLevel === 1) {
-        playGame(6)
+        playGame(event,6)
     }
     if(chooseLevel === 2) {
-        playGame(12)
+        playGame(event,12)
     }
     if(chooseLevel === 3) {
-        playGame(18)
+        playGame(event,18)
     }
 });
-function playGame (n) {
+function playGame (event,n) {
     // Получаем все карточки
     const cards = Array.from(playContent.children[0].querySelector('.level-content_start-card_content').children);
 
@@ -298,54 +354,72 @@ function checkWin(cards) {
     const hiddenCards = cards.filter(card => card.classList.contains('hidden'));
     if (hiddenCards.length === cards.length) {
         // Если все карточки скрыты, показываем alert о победе
-        alert('Вы выиграли!');
+        playContent.children[0].classList.add('hidden')
+        if(playContent.childNodes.length === 2) {
+            generateResultContent(winner)
+        }
+        else if (playContent.childNodes.length > 2) {
+            // playContent.removeChild(playContent.children[playContent.childNodes.length - 1])
+        console.log('dhdhd');
+        }
+        
+        
+        
+        
     }
+    // else {
+    //     generateResultContent(loss)
+    // }
 }
-
-
-
-
-
-
-
-       
-    //   playContent.addEventListener('click', (event) => {
-    //     let chooseLevel = Number(localStorage.getItem('level')) 
-    //     console.log(chooseLevel);
-    //     if(event.target.className === 'level-content_start-time_button') {
-    //         const cards = playContent.children[0].querySelector('.level-content_start-card_content').childNodes
-    //         cards.forEach(element => {
-    //           element.classList.add('hidden')  
-    //         });
-
-    //         if (chooseLevel === 1) {
-    //             cardPlayTemplate(3)
-    //         }
-    //         else if (chooseLevel === 2) {
-    //             cardPlayTemplate(6)
-    //         }
-    //         else if(chooseLevel === 3) {
-    //             cardPlayTemplate(9)
-    //         }
-
-    //         setTimeout( () => {
-    //             // const cardsPlay = playContent.children[0]
-    //             // cardsPlay.classList.add('hidden')
-    //             if (chooseLevel === 1) {
-    //             cardTemplate(6)
-    //         }
-    //         else if (chooseLevel === 2) {
-    //             cardTemplate(12)
-    //         }
-    //         else if(chooseLevel === 3) {
-    //             cardTemplate(18)
-    //         }
-    //     }, 5000 ) 
-    //     }
-    //   })
-       
-       
-       
+    }
+    
+    playContent.addEventListener('click',(event) => {
+        if(event.target.className === 'level-content_start-time_button') {
+            templateAndPlay(event)
+        }
+        else if(event.target.className === 'level-content_start-button') {
+            // localStorage.removeItem('level')
+            // playContent.classList.add('hidden')
+            // selectLevel(event)
+            playContent.removeChild(playContent.children[0])
+             templateAndPlay(event)
+        }
+        
+    })      
+const templateAndPlay = (event) => {
+    playContent.classList.remove('hidden')
+    playContent.removeChild (playContent.children[0])
+            let chooseLevel = Number(localStorage.getItem('level')) 
+           console.log( typeof chooseLevel);
+           
+            if (chooseLevel === 1) {
+                cardPlayTemplate(3)
+            }
+            else if (chooseLevel === 2) {
+                cardPlayTemplate(6)
+            }
+            else if(chooseLevel === 3) {
+                cardPlayTemplate(9)
+            }
+            const cards = playContent.children[0].querySelector('.level-content_start-card_content').childNodes
+            setTimeout( () => {
+             
+             cards.forEach(element => {
+              element.classList.add('hidden')  
+             });
+                if (chooseLevel === 1) {
+                cardTemplate(6)
+            }
+            else if (chooseLevel === 2) {
+                cardTemplate(12)
+            }
+            else if(chooseLevel === 3) {
+                cardTemplate(18)
+            }
+        }, 5000 ) 
+        playCardGame()
+        
+}
         generatePlayCard(6)
         function cardPlayTemplate(n) {
             playContent.appendChild(templateEngine(playLevelCard(n)))
@@ -409,7 +483,44 @@ function checkWin(cards) {
         }
 
 
-       // Для хранения элемента первого клика
+
+       const generateResultMessage = (win) => ({
+        tag: 'div',
+        cls:'play-content_result-content',
+        content: [
+            {
+                tag:'img',
+                cls:'result-content-icon',
+                attrs: {
+                    src: (win) ? './assets/celebration.png' : './assets/dead.png'
+                }
+            },
+            {
+                tag:'h1',
+                cls:'result-content-header',
+                content: win
+            },
+            {
+                tag:'p',
+                cls:'result-content-title_time',
+                content: 'Затраченное время'
+            },
+            {
+                tag:'h1',
+                cls:'result-content-time',
+                content: ''
+            },
+            {
+                tag:'btn',
+                cls:'level-content_start-button',
+                content: 'Играть заново'
+            }
+        ]
+       })
+       
+       function generateResultContent(win) {
+        playContent.appendChild(templateEngine(generateResultMessage(win)))
+       }
 
 
 
