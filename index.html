@@ -80,6 +80,7 @@
         margin-top: 22px;
         display: flex;
         justify-content: space-between;
+        
     }
     .level-content-time{
         display: flex;
@@ -193,6 +194,7 @@
     </div>
     <script src="./playCard.js"></script>
 <script src="./src/lib/template-engine.js"></script>
+<script src="./node_modules/timer.js/dist/timer.min.js"></script>
     <script>
         const bodyChoice = document.querySelector('.dificulty_choice')
         const contentLevel = document.querySelector('.dificulty_choice-content')
@@ -203,7 +205,9 @@
         const loss = 'Вы проиграли'
         let card
         let colorFocus 
-        
+        const playTimer = new Timer ()
+        const timePlay = 10
+
         buttonStart.setAttribute('disabled','disabled') 
             const selectLevel = (event) => {
                 bodyChoice.classList.remove('hidden')
@@ -270,12 +274,13 @@
                 cardTemplate(18,0)
             }
         }, 5000 ) 
+        
         playCardGame()
             
            
        })
     const playCardGame = (event) => {
-       
+      
     
       
        let firstClickElement = null; // Для хранения элемента первого клика
@@ -332,6 +337,7 @@ function playGame (event,n) {
         secondClickElement = null;
 
         // Проверяем, все ли карточки скрыты
+        
         checkWin(cards);
     }, 1000); // Задержка 1 секунда, перед тем как скрыть карточки
 } else {
@@ -346,7 +352,21 @@ function playGame (event,n) {
         secondClickElement = null;
     }, 1000); // Даем время на отображение второго клика перед сбросом
 }
-
+playTimer.start(timePlay).on('end', () => {
+    if(playContent.childNodes.length === 2 ) {
+        playContent.children[0].classList.add('hidden')
+        generateResultContent(loss)
+       
+    }
+    else if(playContent.childNodes.length === 3 ) {
+        console.log('Все отлично');
+    }
+   
+    // else if(playContent.children[1].className === 'play-content_result-content') {
+    //     
+    // }
+    // }
+       })
     }
 }
 // Функция для проверки, все ли карточки скрыты
@@ -378,17 +398,23 @@ function checkWin(cards) {
             templateAndPlay(event)
         }
         else if(event.target.className === 'level-content_start-button') {
-            // localStorage.removeItem('level')
+            localStorage.removeItem('level')
             // playContent.classList.add('hidden')
             // selectLevel(event)
-            playContent.removeChild(playContent.children[0])
-             templateAndPlay(event)
+            // playContent.removeChild(playContent.children[0])
+            playContent.querySelector('.play-content_result-content').classList.add('hidden')
+            selectLevel(event)
+          buttonStart.addEventListener('click', templateAndPlay(event))
+            
+            
+            //  templateAndPlay(event)
         }
         
     })      
 const templateAndPlay = (event) => {
     playContent.classList.remove('hidden')
     playContent.removeChild (playContent.children[0])
+    // playContent.children[0].classList.remove('hidden')
             let chooseLevel = Number(localStorage.getItem('level')) 
            console.log( typeof chooseLevel);
            
