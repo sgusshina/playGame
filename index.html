@@ -196,6 +196,7 @@
 <script src="./src/lib/template-engine.js"></script>
 <script src="./node_modules/timer.js/dist/timer.min.js"></script>
     <script>
+// все переменные, которые нужны
         const bodyChoice = document.querySelector('.dificulty_choice')
         const contentLevel = document.querySelector('.dificulty_choice-content')
         const levels = contentLevel.querySelectorAll('.dificulty_choice-content-level')
@@ -206,47 +207,44 @@
         let card
         let colorFocus 
         const playTimer = new Timer ()
-        const timePlay = 10
-
+        const timePlay = 15
+// выбор уровня
         buttonStart.setAttribute('disabled','disabled') 
-            const selectLevel = (event) => {
-                bodyChoice.classList.remove('hidden')
-                levels.forEach(level => {
+        const selectLevel = (event) => {
+            bodyChoice.classList.remove('hidden')
+
+            levels.forEach(level => {
                 level.addEventListener('click',(event) => {
-                colorFocus = '1px solid black'
-                level.style.border = colorFocus
-                
-                let clickNumber = Number(event.target.dataset.click)
-                clickNumber = clickNumber + 1
-                console.log(clickNumber);
-                event.target.dataset.click = clickNumber
-                localStorage.setItem('level', level.textContent)
-                
-                if(clickNumber % 2 === 0) {
-                    colorFocus = '1px solid white' 
+                    colorFocus = '1px solid black'
                     level.style.border = colorFocus
-                    localStorage.removeItem('level', level.textContent)
-            }
-                if(colorFocus !== '1px solid black' ) {
-                    buttonStart.setAttribute('disabled','disabled') 
                 
-            }   else {
-                    buttonStart.removeAttribute('disabled') 
-            }
-            
-            
-        })
+                    let clickNumber = Number(event.target.dataset.click)
+                    clickNumber = clickNumber + 1
+                    event.target.dataset.click = clickNumber
+                    localStorage.setItem('level', level.textContent)
+                
+                    if(clickNumber % 2 === 0) {
+                        colorFocus = '1px solid white' 
+                        level.style.border = colorFocus
+
+                        localStorage.removeItem('level', level.textContent)
+                }
+                    if(colorFocus !== '1px solid black' ) {
+                        buttonStart.setAttribute('disabled','disabled') 
+                
+                }   else {
+                        buttonStart.removeAttribute('disabled') 
+                }
+            })
        })
-       
-            }
-            selectLevel(event)
-       buttonStart.addEventListener('click', (event) => {
-        
-        let chooseLevel = Number(localStorage.getItem('level')) 
-           console.log( typeof chooseLevel);
-           bodyChoice.classList.add('hidden')
+}
+        selectLevel(event)
+ // нажатие кнопки "начать игру"
+        buttonStart.addEventListener('click', (event) => {
+            let chooseLevel = Number(localStorage.getItem('level')) 
+
+            bodyChoice.classList.add('hidden')
             playContent.classList.remove('hidden')
-            
 
             if (chooseLevel === 1) {
                 cardPlayTemplate(3)
@@ -258,195 +256,183 @@
                 cardPlayTemplate(9)
             }
             const cards = playContent.children[0].querySelector('.level-content_start-card_content').childNodes
+
             setTimeout( () => {
-             
-             cards.forEach(element => {
-              element.classList.add('hidden')  
+                cards.forEach(element => {
+                    element.classList.add('hidden')  
              });
                 if (chooseLevel === 1) {
-                cardTemplate(6,0)
-                
+                    cardTemplate(6,0)    
+                }
+                else if (chooseLevel === 2) {
+                    cardTemplate(12,0)
+                }
+                else if (chooseLevel === 3) {
+                    cardTemplate(18,0)
             }
-            else if (chooseLevel === 2) {
-                cardTemplate(12,0)
-            }
-            else if(chooseLevel === 3) {
-                cardTemplate(18,0)
-            }
-        }, 5000 ) 
-        
-        playCardGame()
-            
-           
-       })
-    const playCardGame = (event) => {
-      
+            }, 5000) 
+       
+            playCardGame()
+            playTimer.start(timePlay)
+            timer()
+})
+function timer () {
+   playTimer.getStatus()
+}
+
+// логика игры
+        const playCardGame = (event) => {
+            let firstClickElement = null; // Для хранения элемента первого клика
+            let secondClickElement = null; // Для хранения элемента второго клика
+
+            playContent.addEventListener('click', (event) => {
     
-      
-       let firstClickElement = null; // Для хранения элемента первого клика
-let secondClickElement = null; // Для хранения элемента второго клика
+            let chooseLevel = Number(localStorage.getItem('level')) 
 
-playContent.addEventListener('click', (event) => {
-    let chooseLevel = Number(localStorage.getItem('level')) 
-    if(chooseLevel === 1) {
-        playGame(event,6)
-    }
-    if(chooseLevel === 2) {
-        playGame(event,12)
-    }
-    if(chooseLevel === 3) {
-        playGame(event,18)
-    }
-});
-function playGame (event,n) {
-    // Получаем все карточки
-    const cards = Array.from(playContent.children[0].querySelector('.level-content_start-card_content').children);
-
+            if (chooseLevel === 1) {
+                playGame(event,6)
+            }
+            if (chooseLevel === 2) {
+                playGame(event,12)
+            }
+            if (chooseLevel === 3) {
+                playGame(event,18)
+            }
+        });
+ // функция, отображающая логику игру
+        function playGame (event,n) {
+            const cards = Array.from(playContent.children[0].querySelector('.level-content_start-card_content').children);
     // Проверяем, что клик был сделан по карточке (чтобы избежать вложенных элементов)
-    if (!cards.includes(event.target)) return;
-
+            if (!cards.includes(event.target)) return;
     // Если карточка уже скрыта, игнорируем клик
-    if (event.target.classList.contains('hidden')) return;
+            if (event.target.classList.contains('hidden')) return;
 
-    const index = cards.indexOf(event.target); // Индекс текущей карточки
-    const indexHidden = index - n; // Индекс скрытой карточки
-
+            const index = cards.indexOf(event.target); // Индекс текущей карточки
+            const indexHidden = index - n; // Индекс скрытой карточки
     // Меняем src для текущей карточки
-    cards[index].attributes.src.value = cards[indexHidden].attributes.src.value;
-    console.log('Клик по карточке:', event.target);
+            cards[index].attributes.src.value = cards[indexHidden].attributes.src.value;
+            console.log('Клик по карточке:', event.target);
 
-    if (firstClickElement === null) {
+            if (firstClickElement === null) {
         // Это первый клик, сохраняем элемент
-        firstClickElement = event.target;
-        console.log('Первый клик на:', firstClickElement);
-    } else if (secondClickElement === null) {
+                firstClickElement = event.target;
+                console.log('Первый клик на:', firstClickElement);
+
+            } else if (secondClickElement === null) {
         // Это второй клик, сохраняем элемент
-        secondClickElement = event.target;
-        console.log('Следующий клик на:', secondClickElement);
+                secondClickElement = event.target;
+                console.log('Следующий клик на:', secondClickElement);
 
         // Проверяем, совпадает ли атрибут src у двух карточек
-        if (firstClickElement.attributes.src.value === secondClickElement.attributes.src.value) {
+                if (firstClickElement.attributes.src.value === secondClickElement.attributes.src.value) {
     // Если src совпадают, карточки должны быть видны на несколько секунд
-    setTimeout(() => {
-        firstClickElement.classList.add('hidden');
-        secondClickElement.classList.add('hidden');
-        console.log('Карточки скрыты');
-
+                    setTimeout(() => {
+                        firstClickElement.classList.add('hidden');
+                        secondClickElement.classList.add('hidden');
+                        console.log('Карточки скрыты');
         // Сбрасываем переменные после того, как карточки скрылись
-        firstClickElement = null;
-        secondClickElement = null;
-
+                        firstClickElement = null;
+                        secondClickElement = null
         // Проверяем, все ли карточки скрыты
-        
-        checkWin(cards);
-    }, 1000); // Задержка 1 секунда, перед тем как скрыть карточки
-} else {
+                        checkWin(cards);
+                     }, 1000); // Задержка 1 секунда, перед тем как скрыть карточки
+                } else {
     // Если src не совпадают, показываем сообщение и возвращаем карточки в исходное состояние
-    setTimeout(() => {
-       
+                    setTimeout(() => {
         // Возвращаем карточки в исходное состояние
-        firstClickElement.attributes.src.value = './assets/рубашка.png'; // Или исходный путь
-        secondClickElement.attributes.src.value = './assets/рубашка.png'; // Или исходный путь
+                        firstClickElement.attributes.src.value = './assets/рубашка.png'; // Или исходный путь
+                        secondClickElement.attributes.src.value = './assets/рубашка.png'; // Или исходный путь
         // Сбрасываем переменные
-        firstClickElement = null;
-        secondClickElement = null;
-    }, 1000); // Даем время на отображение второго клика перед сбросом
-}
-playTimer.start(timePlay).on('end', () => {
-    if(playContent.childNodes.length === 2 ) {
-        playContent.children[0].classList.add('hidden')
-        generateResultContent(loss)
-       
-    }
-    else if(playContent.childNodes.length === 3 ) {
-        console.log('Все отлично');
-    }
-   
-    // else if(playContent.children[1].className === 'play-content_result-content') {
-    //     
-    // }
-    // }
-       })
-    }
-}
+                        firstClickElement = null;
+                        secondClickElement = null;
+                    }, 1000); // Даем время на отображение второго клика перед сбросом
+                }
+                playTimer.on('end', () => {
+                    if(playContent.childNodes.length === 2 ) {
+                        playContent.children[0].classList.add('hidden')
+
+                        generateResultContent(loss)
+                }
+                    else if (playContent.childNodes.length === 3 ) {
+                        console.log('Все отлично');
+                }
+            })
+            }
+        }
 // Функция для проверки, все ли карточки скрыты
-function checkWin(cards) {
-    const hiddenCards = cards.filter(card => card.classList.contains('hidden'));
-    if (hiddenCards.length === cards.length) {
+        function checkWin(cards) {
+            const hiddenCards = cards.filter(card => card.classList.contains('hidden'));
+             if (hiddenCards.length === cards.length) {
         // Если все карточки скрыты, показываем alert о победе
-        playContent.children[0].classList.add('hidden')
-        if(playContent.childNodes.length === 2) {
-            generateResultContent(winner)
+                playContent.children[0].classList.add('hidden')
+                if(playContent.childNodes.length === 2) {
+                    generateResultContent(winner)
+                }
+                else if (playContent.childNodes.length > 2) {
+                    console.log('dhdhd');
+                } 
+            }
         }
-        else if (playContent.childNodes.length > 2) {
-            // playContent.removeChild(playContent.children[playContent.childNodes.length - 1])
-        console.log('dhdhd');
         }
-        
-        
-        
-        
-    }
-    // else {
-    //     generateResultContent(loss)
-    // }
-}
-    }
-    
-    playContent.addEventListener('click',(event) => {
-        if(event.target.className === 'level-content_start-time_button') {
-            templateAndPlay(event)
-        }
-        else if(event.target.className === 'level-content_start-button') {
-            localStorage.removeItem('level')
-            // playContent.classList.add('hidden')
-            // selectLevel(event)
-            // playContent.removeChild(playContent.children[0])
-            playContent.querySelector('.play-content_result-content').classList.add('hidden')
-            selectLevel(event)
-          buttonStart.addEventListener('click', templateAndPlay(event))
+
+        // логика "играть заново"
+        playContent.addEventListener('click',(event) => {
+            if(event.target.className === 'level-content_start-time_button') {
+                templateAndPlay(event)
+            }
+            else if(event.target.className === 'level-content_start-button') {
+                localStorage.removeItem('level')
+
+                playContent.querySelector('.play-content_result-content').classList.add('hidden')
+
+                selectLevel(event)
+
+                buttonStart.addEventListener('click', templateAndPlay(event))
             
-            
-            //  templateAndPlay(event)
-        }
-        
-    })      
-const templateAndPlay = (event) => {
-    playContent.classList.remove('hidden')
-    playContent.removeChild (playContent.children[0])
-    // playContent.children[0].classList.remove('hidden')
+            }
+        }) 
+// функция, отвечающая за логику "играть заново"
+        const templateAndPlay = (event) => {
+            playContent.classList.remove('hidden')
+
+            playContent.removeChild (playContent.children[0])
+
             let chooseLevel = Number(localStorage.getItem('level')) 
-           console.log( typeof chooseLevel);
-           
+
             if (chooseLevel === 1) {
                 cardPlayTemplate(3)
             }
+
             else if (chooseLevel === 2) {
                 cardPlayTemplate(6)
             }
+
             else if(chooseLevel === 3) {
                 cardPlayTemplate(9)
             }
+
             const cards = playContent.children[0].querySelector('.level-content_start-card_content').childNodes
             setTimeout( () => {
              
-             cards.forEach(element => {
-              element.classList.add('hidden')  
-             });
+                cards.forEach(element => {
+                    element.classList.add('hidden')  
+                });
+
                 if (chooseLevel === 1) {
-                cardTemplate(6)
-            }
-            else if (chooseLevel === 2) {
-                cardTemplate(12)
-            }
-            else if(chooseLevel === 3) {
-                cardTemplate(18)
-            }
-        }, 5000 ) 
-        playCardGame()
-        
-}
+                    cardTemplate(6)
+                }
+                else if (chooseLevel === 2) {
+                    cardTemplate(12)
+                }
+                else if (chooseLevel === 3) {
+                    cardTemplate(18)
+                }
+            }, 5000 ) 
+
+             playCardGame()
+        }
         generatePlayCard(6)
+// верстка карточек и результатов игры
         function cardPlayTemplate(n) {
             playContent.appendChild(templateEngine(playLevelCard(n)))
         }
@@ -503,17 +489,15 @@ const templateAndPlay = (event) => {
         )
        
         function cardTemplate(n) {
-          
+         
             playContent.children[0].querySelector('.level-content_start-card_content').appendChild(templateEngine(generateCard(n)))
     
         }
 
-
-
        const generateResultMessage = (win) => ({
-        tag: 'div',
-        cls:'play-content_result-content',
-        content: [
+            tag: 'div',
+            cls:'play-content_result-content',
+            content: [
             {
                 tag:'img',
                 cls:'result-content-icon',
@@ -545,9 +529,10 @@ const templateAndPlay = (event) => {
        })
        
        function generateResultContent(win) {
-        playContent.appendChild(templateEngine(generateResultMessage(win)))
-       }
 
+        playContent.appendChild(templateEngine(generateResultMessage(win)))
+        
+       }
 
 
    </script>
