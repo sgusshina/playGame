@@ -70,6 +70,10 @@
         border: 1px solid #5ceb38 ;
 
     }
+    .play-content {
+        width: 1440px;
+        
+    }
     .level-content_start{
         max-width: 1440px;
         height: 750px;
@@ -128,6 +132,8 @@
         justify-content: center;
     }
     .play-content_result-content{
+        margin-left: calc(50% - 272px);
+        margin-right: calc(50% - 272px);
         width: 480px;
         height: 460px;
         background-color: rgba(194, 245, 255, 1);
@@ -207,19 +213,24 @@
         let card
         let colorFocus 
         const playTimer = new Timer ()
-        const timePlay = 15
+        let timePlay 
+        let seconds = 0;
+        let minutes = 0;
+        let hours = 0;
+        let interval;
 // выбор уровня
         buttonStart.setAttribute('disabled','disabled') 
-        const selectLevel = (event) => {
+        const selectLevel = (event,n) => {
+            let clickNumber
             bodyChoice.classList.remove('hidden')
-
             levels.forEach(level => {
+                level.style.border = '1px solid white' 
                 level.addEventListener('click',(event) => {
                     colorFocus = '1px solid black'
                     level.style.border = colorFocus
                 
-                    let clickNumber = Number(event.target.dataset.click)
-                    clickNumber = clickNumber + 1
+                    clickNumber = Number(event.target.dataset.click)
+                    clickNumber = clickNumber + n
                     event.target.dataset.click = clickNumber
                     localStorage.setItem('level', level.textContent)
                 
@@ -235,24 +246,32 @@
                 }   else {
                         buttonStart.removeAttribute('disabled') 
                 }
+                
             })
        })
+       
 }
-        selectLevel(event)
+        selectLevel(event,1)
+        let level = Number(localStorage.getItem('level'))
+        
+console.log(level,timePlay);
  // нажатие кнопки "начать игру"
         buttonStart.addEventListener('click', (event) => {
             let chooseLevel = Number(localStorage.getItem('level')) 
 
             bodyChoice.classList.add('hidden')
             playContent.classList.remove('hidden')
-
+            
             if (chooseLevel === 1) {
+                timePlay = 10
                 cardPlayTemplate(3)
             }
             else if (chooseLevel === 2) {
+                timePlay = 15
                 cardPlayTemplate(6)
             }
             else if(chooseLevel === 3) {
+                timePlay = 60
                 cardPlayTemplate(9)
             }
             const cards = playContent.children[0].querySelector('.level-content_start-card_content').childNodes
@@ -270,21 +289,28 @@
                 else if (chooseLevel === 3) {
                     cardTemplate(18,0)
             }
+            interval = setInterval(updateTime, 1000);
             }, 5000) 
-       
+            const timerContent = playContent.querySelector('.level-content_start-time-num')
+             function updateTime() {
+                seconds++;
+                if (seconds === 60) {
+                    minutes++;
+                    seconds = 0;
+                }
+            timerContent.textContent = `${minutes.toString().padStart(2, '0')}.${seconds.toString().padStart(2, '0')}`;
+            
+          }
+          
             playCardGame()
-            playTimer.start(timePlay)
-            timer()
+            
 })
-function timer () {
-   playTimer.getStatus()
-}
 
 // логика игры
         const playCardGame = (event) => {
             let firstClickElement = null; // Для хранения элемента первого клика
             let secondClickElement = null; // Для хранения элемента второго клика
-
+            
             playContent.addEventListener('click', (event) => {
     
             let chooseLevel = Number(localStorage.getItem('level')) 
@@ -335,7 +361,7 @@ function timer () {
                         secondClickElement = null
         // Проверяем, все ли карточки скрыты
                         checkWin(cards);
-                     }, 1000); // Задержка 1 секунда, перед тем как скрыть карточки
+                     }, 500); // Задержка 1 секунда, перед тем как скрыть карточки
                 } else {
     // Если src не совпадают, показываем сообщение и возвращаем карточки в исходное состояние
                     setTimeout(() => {
@@ -345,10 +371,11 @@ function timer () {
         // Сбрасываем переменные
                         firstClickElement = null;
                         secondClickElement = null;
-                    }, 1000); // Даем время на отображение второго клика перед сбросом
+                    }, 500); // Даем время на отображение второго клика перед сбросом
                 }
-                playTimer.on('end', () => {
+                playTimer.start(timePlay).on('end', () => {
                     if(playContent.childNodes.length === 2 ) {
+                        clearInterval(interval)
                         playContent.children[0].classList.add('hidden')
 
                         generateResultContent(loss)
@@ -381,13 +408,18 @@ function timer () {
                 templateAndPlay(event)
             }
             else if(event.target.className === 'level-content_start-button') {
-                localStorage.removeItem('level')
+
+                // localStorage.removeItem('level')
 
                 playContent.querySelector('.play-content_result-content').classList.add('hidden')
 
-                selectLevel(event)
+                location.reload()
+                // selectLevel(event,0)
+                
+                // console.log(buttonStart);
 
-                buttonStart.addEventListener('click', templateAndPlay(event))
+
+                // buttonStart.addEventListener('click', templateAndPlay(event))
             
             }
         }) 
@@ -400,14 +432,17 @@ function timer () {
             let chooseLevel = Number(localStorage.getItem('level')) 
 
             if (chooseLevel === 1) {
+                timePlay = 10
                 cardPlayTemplate(3)
             }
 
             else if (chooseLevel === 2) {
+                timePlay = 15
                 cardPlayTemplate(6)
             }
 
             else if(chooseLevel === 3) {
+                timePlay = 60
                 cardPlayTemplate(9)
             }
 
@@ -419,19 +454,31 @@ function timer () {
                 });
 
                 if (chooseLevel === 1) {
-                    cardTemplate(6)
+                    cardTemplate(6,0)
                 }
                 else if (chooseLevel === 2) {
-                    cardTemplate(12)
+                    cardTemplate(12,0)
                 }
                 else if (chooseLevel === 3) {
-                    cardTemplate(18)
+                    cardTemplate(18,0)
                 }
+                interval = setInterval(updateTime, 1000);
             }, 5000 ) 
+            const timerContent = playContent.querySelector('.level-content_start-time-num')
+            
+             function updateTime() {
+                seconds = 0 
+                seconds++;
+                if (seconds === 60) {
+                    minutes++;
+                    seconds = 0;
+                }
+            timerContent.textContent = `${minutes.toString().padStart(2, '0')}.${seconds.toString().padStart(2, '0')}`;
+          }
 
              playCardGame()
         }
-        generatePlayCard(6)
+        // generatePlayCard(6)
 // верстка карточек и результатов игры
         function cardPlayTemplate(n) {
             playContent.appendChild(templateEngine(playLevelCard(n)))
@@ -518,7 +565,7 @@ function timer () {
             {
                 tag:'h1',
                 cls:'result-content-time',
-                content: ''
+                content: `${minutes.toString().padStart(2, '0')}.${seconds.toString().padStart(2, '0')}`
             },
             {
                 tag:'btn',
